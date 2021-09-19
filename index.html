@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>SATTS Keyboard</title>
+<link rel="alternate" type="application/rss+xml" title="SATTS" >
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
+<link rel="stylesheet" href="nprogress.css">
+
+<style>
+.bt, .bt:hover, .bt:visited {text-decoration:none; cursor:pointer; padding:0.1em 0.25em; min-width:1.4em; font-size:1.7em; color:#CC0033; font-family:Times New Roman; }
+.btb, .btb:hover, .btb:visited {text-decoration:none; cursor:pointer; padding:0.1em 0em; min-width:1.2em; font-size:1.7em; color:#CC0033; font-family:Times New Roman; }
+.cadr {width:80%; font-size:1.8em; color:#0000FF; font-family:Simplified Arabic, Times New Roman;  direction:rtl;  padding:0.3em;  }
+.tabl tr { vertical-align:top; }
+.tabl td { padding-left:1em;  white-space: nowrap; }
+.center form table tr td {
+	text-align: center;
+}
+.fgsd {
+	text-align: center;
+}
+.Middle {
+	text-align: center;
+}
+.center form p script {
+	text-align: center;
+}
+
+
+
+
+	textarea
+{
+  border:1px solid #999999;
+  width:85%;
+  margin:5px;
+  padding:10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px  rgba(0,0,0,0.6);
+}
+
+ body
+{ 
+ background: #e6f3ff;
+}
+
+      /* The snackbar - position it at the bottom and in the middle of the screen */
+      #snackbar {
+        visibility: hidden; /* Hidden by default. Visible on click */
+        min-width: 250px; /* Set a default minimum width */
+        margin-left: -125px; /* Divide value of min-width by 2 */
+        background-color: #333; /* Black background color */
+        color: #fff; /* White text color */
+        text-align: center; /* Centered text */
+        border-radius: 2px; /* Rounded borders */
+        padding: 16px; /* Padding */
+        position: fixed; /* Sit on top of the screen */
+        z-index: 1; /* Add a z-index if needed */
+        left: 50%; /* Center the snackbar */
+        bottom: 30px; /* 30px from the bottom */
+      }
+
+      /* Show the snackbar when clicking on a button (class added with JavaScript) */
+      #snackbar.show {
+        visibility: visible; /* Show the snackbar */
+        /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+
+      /* Animations to fade the snackbar in and out */
+      @-webkit-keyframes fadein {
+        from {
+          bottom: 0;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadein {
+        from {
+          bottom: 0;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+
+      @-webkit-keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 0;
+          opacity: 0;
+        }
+      }
+
+      @keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 0;
+          opacity: 0;
+        }
+      }
+    h1 {
+	font-size: 16px;
+	color: #003;
+	text-align:center;
+}
+
+
+</style>
+<link href="style.css" rel="stylesheet" type="text/css">
+<script src="base.js"></script>
+<script src="carar.js"></script>
+<script src="clipboard.js"></script>
+<script src="savef.js"></script>
+<script src="downloadAudio.js"></script>
+</head>
+<body onload="conversion.saisie.focus()" align="center">
+<br><br>
+      <table width="95%" border="0" align="center" cellpadding="7" cellspacing="1">
+        <tr>
+          <td align="center" valign="middle">
+              <audio
+      id="audioPlayer"
+      data-loopenabled="false"
+      style="width: 95%;"
+      data-loopval="0"
+      ontimeupdate="audioloop()"
+      controls
+      src="SampleAudio.mp3"
+    >
+      <p>Your browser does not support the <code>audio</code> element.
+</audio>
+          
+          </td>
+        </tr>
+      </table>
+    
+
+<P> </P>
+
+
+    <div align="center">
+      <button onclick="rewind2Seconds()" >Rewind 2 sec</button>
+      <button id="loopButton" onclick="enableLoop()">Loop last 2 sec</button>
+      <button id="audioDownloadButton" onclick="saveAudio()">Download</button>
+
+  <br><br>    
+            
+      <label>Speed Control </label><br>
+      <input
+        type="range"
+        
+        style="width:95%"
+        min="0"
+        max="2"
+        step="0.1"
+        defaultvalue="1"
+        name="audioPlaybackSelector"
+        id="audioPlaybackRange"
+      />
+  <br><br>    
+
+    </div>
+
+
+
+  <!-- Playback selection slider -->
+    <div class="slidecontainer" align="center">
+    </div>
+
+<button onclick="ShowSATTS()">Show SATTS</button>
+
+<div style="display: none" id="SATTSarea" align="center"> 
+
+<form name="conversion" >
+This textarea is compatible with SATTS and Arabic keyboard<br> 
+
+  <textarea name="saisie" id="bar" onkeyup="transcrire()" rows="5" class="cadr" >    </textarea>
+  <br>
+  <input type="button" class="bf" data-clipboard-action="copy" data-clipboard-target="#bar" value="Copy Text">
+  <script>
+var clipboard = new Clipboard('.bf');
+clipboard.on('success', function(e) {
+console.log(e); 
+});
+clipboard.on('error', function(e) {
+console.log(e);
+});
+</script>
+  <input type="button" class="bf" onclick="save()" value="Save Text">
+
+ <br><br>
+
+<table width="55%" border="0" align="center" cellpadding="0" cellspacing="0">
+
+<tr>
+<td><input type="button" class="cadr" onclick="alpha('ؤ')" value="ؤ"></td>
+<td><input type="button" class="cadr" onclick="alpha('إ')" value="إ"></td>
+<td><input type="button" class="cadr" onclick="alpha('ٱ')" value="ٱ"></td>
+<td><input type="button" class="cadr" title="fatḥa" onclick="alpha('َ')" value="َ&nbsp;"></td>
+<td><input type="button" class="cadr" title="tanwīn -an" onclick="alpha('ً')" value="ً&nbsp;"></td>
+<td><input type="button" class="cadr" title="ḍamma" onclick="alpha('ُ')" value="ُ&nbsp;"></td>
+<td><input type="button" class="cadr" title="tanwīn -un" onclick="alpha('ٌ')" value="ٌ&nbsp;"></td>
+<td><input type="button" class="cadr" title="šadda" onclick="alpha('ّ')" value="ّ&nbsp;"></td>
+<td><input type="button" class="cadr" title="sukūn" onclick="alpha('ْ')" value="ْ&nbsp;"></td>
+<td><input type="button" class="cadr" title="kasra" onclick="alpha('ِ')" value="ِ&nbsp;"></td>
+<td><input type="button" class="cadr" title="tanwīn -in" onclick="alpha('ٍ')" value="ٍ&nbsp;"></td>
+<td><input type="button" class="cadr" onclick="alpha('؟')" value="؟"></td>
+<td><input type="button" class="cadr" onclick="alpha('!')" value="!"></td>
+<td><input type="button" class="cadr" onclick="alpha('؛')" value="؛"></td>
+<td><input type="button" class="cadr" onclick="alpha('،')" value="،"></td>
+<td><input type="button" class="cadr" onclick="alpha('.')" value="."></td>
+<td><input type="button" class="cadr" title="tatwil" onclick="alpha('ـ')" value="ـ"></td>
+
+<td class="esps"></td>
+</tr>
+
+</tr>
+</tbody></table> 
+    
+     </TD>
+  </tr>
+</table>
+
+</table>
+</form>
+
+<br>
+<table width="99%" border="0" align="center" cellpadding="0" cellspacing="0" class="Middle">
+  <tr>
+    <td><button onClick="myFunction()">Show/Hide SATTS Layout</button>
+    <div id="myDIV" style="display:none"><img src="Keyboard-Image.jpg" width="430" height="432" alt="See SATTS"> </div>
+    
+    </td>
+  </tr>
+</table>
+
+<br>
+<br>
+
+</div>
+
+<script>
+function myFunction() {
+  var x = document.getElementById("myDIV");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+
+function ShowSATTS() {
+  var x = document.getElementById("SATTSarea");
+  let transcribeTextArea = document.querySelector('#transcribeTextArea')
+  if (x.style.display === "none") {
+    x.style.display = "block";
+    transcribeTextArea.style.display = 'none'
+  } else {
+    x.style.display = "none";
+    transcribeTextArea.style.display = 'block'
+  }
+} 
+
+</script>
+
+
+
+
+
+      <div align="center" id="transcribeTextArea">
+
+        <textarea
+          id="textArea1"
+          defaultvalue="Transcirbe"
+          name="textArea1"
+          rows="4"
+          cols="50"
+          dir="RTL"
+          placeholder="Transcribe"
+        ></textarea>
+        <br>
+                      <button onclick="copyToClipBoard('textArea1')">
+          Copy Transcription
+        </button>
+<p> </p>
+      </div>
+
+      <div align="center">
+        <textarea
+          id="textArea2"
+          name="textArea2"
+          placeholder="Translate"
+          defaultvalue="Translate"
+          rows="4"
+          cols="50"
+        ></textarea>
+        <br>
+        <button onclick="copyToClipBoard('textArea2')">
+          Copy Translation
+        </button>
+      </div>
+    </div>
+
+  <div id="snackbar">Copied to Clipboard</div>
+
+    <script>
+      let audioUrl = window.location.href.split('AudioSource=')[1];
+      audioUrl = audioUrl.split('&Instruction')[0]
+      alert(audioUrl)
+      localStorage.setItem('audioUrl', audioUrl ?? '')
+      let audio = document.getElementById('audioPlayer');
+      let loopButton = document.querySelector('#loopButton');
+      let snackBar = document.getElementById('snackbar');
+
+      audio.src = audioUrl
+        ? audioUrl
+        : 'SampleAudio.MP3';
+ 
+        // On audio play
+        audio.addEventListener('timeupdate', (event) => {
+            const currentTime = Math.floor(audio.currentTime);
+            const duration = Math.floor(audio.duration);
+           localStorage.setItem('currentAudioDuration', currentTime)
+        }, false);
+ 
+      //   Rewind last two seconds of the audio
+      const rewind2Seconds = () => {
+        audio.currentTime = audio.currentTime - 2;
+      };
+
+      //   Set audio playback speed
+      document.querySelector('#audioPlaybackRange').oninput = function () {
+        audio.playbackRate = Number(this.value);
+        document.querySelector(
+          '#playbackSpeed'
+        ).innerHTML = `Playback speed: ${this.value}`;
+      };
+
+      //   Copy text from the selected textarea to clipboard
+      const copyToClipBoard = (elementId) => {
+        let areaId = `#${elementId}`;
+        let str = document.querySelector(areaId).value;
+        const el = document.createElement('textarea');
+        el.value = str;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+
+        // Show snackbar
+        snackBar.className = 'show';
+
+
+
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function () {
+          snackBar.className = snackBar.className.replace('show', '');
+        }, 3000);
+      };
+
+      //   If loop is enabled, loop last 2 seconds
+      function audioloop() {
+        let loopVal = audio.getAttribute('data-loopval');
+        let isEnabled = audio.getAttribute('data-loopenabled');
+
+        if (isEnabled === 'true' && audio.currentTime >= loopVal) {
+          audio.currentTime = loopVal - 2;
+        }
+      }
+
+      //   Enable Loop for last 2 seconds
+      const enableLoop = () => {
+        let isEnabled = audio.getAttribute('data-loopenabled');
+        if (isEnabled === 'false') {
+          loopButton.innerHTML = 'Disable Loop';
+          audio.setAttribute('data-loopenabled', 'true');
+          audio.setAttribute('data-loopval', audio.currentTime);
+        } else {
+          audio.setAttribute('data-loopenabled', 'false');
+          loopButton.innerHTML = 'Loop last 2 sec';
+        }
+      };
+    </script>
+
+
+
+
+
+
+</body></html>
