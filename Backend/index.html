@@ -323,7 +323,6 @@ function ShowSATTS() {
     <script>
       let audioUrl = window.location.href.split('AudioSource=')[1];
       audioUrl = audioUrl.split('&Instruction')[0]
-      alert(audioUrl)
       localStorage.setItem('audioUrl', audioUrl ?? '')
       let audio = document.getElementById('audioPlayer');
       let loopButton = document.querySelector('#loopButton');

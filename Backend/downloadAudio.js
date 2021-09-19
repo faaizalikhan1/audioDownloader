@@ -8,8 +8,12 @@ const saveAudio = async () => {
 
   //     let res = await axios.get(`http://localhost:3000/save?audio=${url}`)
   //     console.log(res.data)
+  // let apiRes = await axios.get(
+  //   `https://audio-trimmer-koa.herokuapp.com/save?audio=${url}&duration=${duration}`
+  // );
+
   let apiRes = await axios.get(
-    `https://audio-trimmer-koa.herokuapp.com/save?audio=${url}&duration=${duration}`
+    `/save?audio=${url}&duration=${duration}`
   );
 
   //   Download your file
@@ -41,6 +45,10 @@ const download = (filename, fileurl) => {
       NProgress.done(true);
       let downloadButton = document.querySelector('#audioDownloadButton');
       downloadButton.removeAttribute('disabled');
+
+      setTimeout(() => {
+        axios.get(`/delete?url=${fileurl}`)
+      }, 200);
     })
     .catch((error) => {
       console.log(error);

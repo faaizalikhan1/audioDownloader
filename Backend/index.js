@@ -23,6 +23,13 @@ router.get('/hi', async (ctx, next) => {
   ctx.body = 'Hello world';
 });
 
+router.get('/delete', async (ctx, next) => {
+  fs.unlinkSync(path.join(__dirname, ctx.request.query.url));
+  let trimmedUrl = ctx.request.query.url.replace('trimmedaudio', 'audio')
+  fs.unlinkSync(path.join(__dirname, trimmedUrl));
+});
+
+
 router.get('/save', async (ctx, next) => {
   // ctx.router available
   let mainUrl = ctx.request.query.audio;
@@ -33,15 +40,16 @@ router.get('/save', async (ctx, next) => {
   let r = await downloadFile(
     //   'https://www.kozco.com/tech/organfinale.mp3',
     mainUrl,
-    path.join(__dirname, '/audiosToSave/audio.mp3'),
+    path.join(__dirname, `/audiosToSave/audio${Date.now()}.mp3`),
     ctx,
-    duration
+    duration,
+    `audio${Date.now()}.mp3`
   );
 
   ctx.body = r;
 });
 
-async function downloadFile(fileUrl, outputLocationPath, ctx, duration) {
+async function downloadFile(fileUrl, outputLocationPath, ctx, duration, currentFileName) {
   return new Promise((resolve, reject) => {
     const writer = fs.createWriteStream(outputLocationPath);
     return axios({
@@ -52,7 +60,6 @@ async function downloadFile(fileUrl, outputLocationPath, ctx, duration) {
       response.data.pipe(writer);
       await finished(writer); //this is a Promise
       // var process = new ffmpeg(outputLocationPath);
-        console.log('UPLOADING NOWW')
     //   child_process.exec(
     //     `ffmpeg -i ${outputLocationPath} -acodec copy -ss ${duration} -t 10 ${path.join(
     //       __dirname,
@@ -66,10 +73,10 @@ async function downloadFile(fileUrl, outputLocationPath, ctx, duration) {
         FfmpegCommand(outputLocationPath)
           .inputOptions([`-ss ${duration}`, '-t 10']) // 2s
           .audioCodec('copy')
-          .output(path.join(__dirname, '/audiosToSave/trimmedAudio.mp3'))
+          .output(path.join(__dirname, `/audiosToSave/trimmed${currentFileName}`))
           .on('end', () => {
             // ctx.body = path.join(__dirname, '/audiosToSave/trimmedAudio.mp3');
-            resolve(`https://audio-trimmer-koa.herokuapp.com/audiosToSave/trimmedAudio.mp3`); // fix stdout
+            resolve(`/audiosToSave/trimmed${currentFileName}`); // fix stdout
           })
           .run();
     });
